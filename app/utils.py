@@ -14,8 +14,7 @@ def histogram(samples):
 def entropy(source):
     """
     Oblicza entropię danych źródłowych, przyjmując że są one kodowane binarnie.
-    """
-    
+    """    
     alphabet_hist = histogram(source)
     source_len = len(source)
     entropy = 0
@@ -23,3 +22,40 @@ def entropy(source):
         probability = occurrences / float(source_len)
         entropy -= probability * log(probability, 2)
     return entropy
+
+
+def write_binary(stream, data):
+    """
+    Zapisuje do strumienia bitowego (BitStream) liczbę naturalną lub ciąg liczb, 
+    kodując je binarnie (NKB).
+    """
+    if isinstance(data, list):
+        for integer in data:
+            write_integer_to_stream(stream, integer)
+    else:
+        integer = int(data)
+        if integer < 0:
+            raise ValueError("Nie można zapisać do strumienia ujemnej wartości")
+        bools = []
+        while integer:
+            bools.append(integer & 1)
+            integer = integer >> 1
+        bools.reverse()
+        stream.write(bools, bool)
+
+
+def write_unary(stream, data):
+    """
+    Zapisuje do strumienia bitowego (BitStream) liczbę naturalną lub ciąg liczb,
+    kodując je przy pomocy kodu unarnego.
+    """
+    if isinstance(data, list):
+        for integer in data:
+            write_unary(stream, integer)
+    else:
+        integer = int(data)
+        if integer < 0:
+            raise ValueError("Nie można zapisać do strumienia ujemnej wartości")
+        for i in range(integer):
+            stream.write(True)
+        stream.write(False)
