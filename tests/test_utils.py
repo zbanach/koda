@@ -1,6 +1,7 @@
-from ..app.utils import entropy, histogram, write_binary, write_unary
+from ..app.utils import entropy, histogram, write_binary, write_unary, read_binary, read_unary
+from utils import make_bitstream
 
-from bitstream import BitStream
+from bitstream import BitStream, ReadError
 import bitstream
 import math
 import pytest
@@ -39,15 +40,15 @@ class TestBitStreamBinaryWriter:
         stream.write(0)
         assert stream == BitStream()
         stream.write(1)
-        assert stream == BitStream(True)
+        assert stream == make_bitstream('1')
         stream.write(2)
-        assert stream == BitStream([True, True, False])
+        assert stream == make_bitstream('110')
         stream.write(3)
-        assert stream == BitStream([True, True, False, True, True])
+        assert stream == make_bitstream('11011')
 
     def test_writer2(self, stream):
         stream.write(19)
-        assert stream == BitStream([True, False, False, True, True])
+        assert stream == make_bitstream('10011')
 
     def test_writer_for_negative_numbers(self, stream):
         with pytest.raises(ValueError):
@@ -63,12 +64,48 @@ class TestBitStreamUnaryWriter:
     def test_writer(self, stream):
         assert stream == BitStream()
         write_unary(stream, 0)
-        assert stream == BitStream([False])
+        assert stream == make_bitstream('1')
         write_unary(stream, 1)
-        assert stream == BitStream([False, True, False])
+        assert stream == make_bitstream('101')
         write_unary(stream, 2)
-        assert stream == BitStream([False, True, False, True, True, False])
+        assert stream == make_bitstream('101001')
 
     def test_writer2(self, stream):
         write_unary(stream, 5)
-        assert stream == BitStream([True, True, True, True, True, False])
+        assert stream == make_bitstream('000001')
+
+
+class TestBitStreamBinaryReader:
+    
+    def test_reader(self):
+        assert 0 == read_binary(make_bitstream('0'), 1)
+        assert 1 == read_binary(make_bitstream('1'), 1)
+        assert 2 == read_binary(make_bitstream('10'), 2)
+        assert 5 == read_binary(make_bitstream('101'), 3)
+        assert 16 == read_binary(make_bitstream('10000000'), 5)
+
+    def test_reader_sequence(self):
+        bs = make_bitstream('100100110')
+        assert 4 == read_binary(bs, 3)
+        assert 2 == read_binary(bs, 2)
+        assert 0 == read_binary(bs, 1)
+        assert 6 == read_binary(bs, 3)
+        
+    def test_reader_underflow(self):
+        with pytest.raises(ReadError):
+            read_binary(make_bitstream('1'), 2)
+
+
+class TestBitStreamUnaryReader:
+
+    def test_reader(self):
+        assert 0 == read_unary(make_bitstream('1'))
+        assert 1 == read_unary(make_bitstream('01'))
+        assert 15 == read_unary(BitStream([False for i in range(15)] + [True]))
+
+    def test_reader_sequence(self):
+        bs = make_bitstream('0011010001')
+        assert 2 == read_unary(bs)
+        assert 0 == read_unary(bs)
+        assert 1 == read_unary(bs)
+        assert 3 == read_unary(bs)

@@ -24,7 +24,7 @@ def entropy(source):
     return entropy
 
 
-def write_binary(stream, data):
+def write_binary(stream, data, num_bits=0):
     """
     Zapisuje do strumienia bitowego (BitStream) liczbę naturalną lub ciąg liczb, 
     kodując je binarnie (NKB).
@@ -37,9 +37,13 @@ def write_binary(stream, data):
         if integer < 0:
             raise ValueError("Nie można zapisać do strumienia ujemnej wartości")
         bools = []
+        bits_used = 0
         while integer:
             bools.append(integer & 1)
             integer = integer >> 1
+            bits_used += 1
+        for i in range(bits_used, num_bits):
+            bools.append(False)
         bools.reverse()
         stream.write(bools, bool)
 
@@ -57,5 +61,26 @@ def write_unary(stream, data):
         if integer < 0:
             raise ValueError("Nie można zapisać do strumienia ujemnej wartości")
         for i in range(integer):
-            stream.write(True)
-        stream.write(False)
+            stream.write(False)
+        stream.write(True)
+
+
+def read_unary(stream):
+    """
+    Odczytuje ze strumienia bitowego (BitStream) liczbę naturalną zakodowaną unarnie.
+    """
+    number = 0
+    while stream.read(bool) == False:
+        number += 1
+    return number
+
+
+def read_binary(stream, num_bits):
+    """
+    Odczytuje ze strumienia bitowego (BitStream) liczbę naturalną zakodowaną binarnie
+    na podanej liczbie bitów.
+    """
+    number = 0
+    for i in range(num_bits):
+        number = number << 1 | stream.read(bool)
+    return number
