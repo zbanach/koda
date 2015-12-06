@@ -1,5 +1,7 @@
 # coding=utf-8
 from math import log
+import PIL.Image as Img
+import matplotlib.pyplot as plt
 
 def histogram(samples):
     """
@@ -84,3 +86,49 @@ def read_binary(stream, num_bits):
     for i in range(num_bits):
         number = number << 1 | stream.read(bool)
     return number
+
+def read_image(filename):
+    """
+    Wczytuje obrazek z podanej lokalizacji i zwraca tablicę z wartościami pixeli.
+
+    Zakłada się, że obrazek jest w skali szarości, dlatego pobierana jest wartość
+    kanału R.
+    """
+    img = Img.open(filename)
+    return list(img.getdata(0))
+
+def differential_encoding(data, first_value=128):
+    """
+    Różnicowe kodowanie ciągu.
+    """
+    return [data[idx - 1] - val if idx > 0 else first_value - val for idx, val in enumerate(data)]
+
+def differential_decoding(data, first_value=128):
+    """
+    Dekodowanie ciągu zakodowanego różnicowo.
+    """
+    new_data = [first_value - data[0]]
+    for idx, val in enumerate(data[1:], start=1):
+        new_data += [new_data[idx - 1] - val]
+    return new_data
+
+def scale_to_positive(data):
+    """
+    Przeskalowanie ciągu liczb ujemno-dodatnich do wartości dodatnich.
+    """
+    return [(2*abs(val)) - 1 if val < 0 else 2*val for val in data]
+
+def scale_to_nonpositive(data):
+    """
+    Przeskalowanie ciągu liczb dodatnich do wartości ujemno-dodatnich.
+    """
+    return [val/2 if val%2 == 0 else -1*(val + 1)/2 for val in data]
+
+def show_histogram(data, name):
+    """
+    Wyświetlenie histogramu dla ciągu danych.
+    """
+    plt.hist(data)
+    plt.xlabel(name)
+    plt.show()
+
