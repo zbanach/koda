@@ -47,7 +47,7 @@ def main():
         show_histogram(diffed, picture)
         scaled = scale_to_positive(diffed)
         for direct in (True, False):
-            codec = ExpGolombCodec(direct)
+            codec = ExpGolombCodec(direct=direct)
             codec.encode(scaled)
             stat = codec.statistics
             if direct:

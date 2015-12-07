@@ -4,7 +4,7 @@ from ..app.codec import ExpGolombCodec
 from ..app.utils import entropy, read_image, differential_encoding, differential_decoding, scale_to_positive, scale_to_nonpositive, show_histogram
 from os.path import dirname
 
-def main():
+def test_images():
     IMG_PATH = './images/'
 
     print "\nTest kodowania obrazów"
@@ -27,4 +27,4 @@ def main():
         print "Obraz wejściowy jednakowy ze zdekodowanym."
 
 if __name__ == '__main__':
-    main()
+    test_images()

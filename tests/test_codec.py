@@ -54,7 +54,7 @@ class TestIndirectEncoding:
 
     def test_encoding_sequence(self, codec):
         seq = [0, 3, 1, 0, 2, 0, 2, 0, 3, 0, 0, 2]
-        header = '00000100'+'00000010'+'00'+'10'+'11'+'01'
+        header = '0'*13 + '100'+'0010'+'00'+'10'+'11'+'01'
         code_words = '1'+'011'+'00100'+'1'+'010'+'1'+'010'+'1'+'011'+'1'+'1'+'010'
         expected = make_bitstream(header + code_words)
         assert codec.encode(seq) == expected
@@ -67,7 +67,7 @@ class TestIndirectDecoding:
         return ExpGolombCodec()
 
     def test_decoding_sequence(self, codec):
-        header = '00000100'+'00000010'+'00'+'10'+'11'+'01'
+        header = '0'*13 + '100'+'0010'+'00'+'10'+'11'+'01'
         code_words = '1'+'011'+'00100'+'1'+'010'+'1'+'010'+'1'+'011'+'1'+'1'+'010'
         stream = make_bitstream(header + code_words)
         expected = [0, 3, 1, 0, 2, 0, 2, 0, 3, 0, 0, 2]

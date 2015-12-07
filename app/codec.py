@@ -93,8 +93,8 @@ class ExpGolombCodec:
 
         # Zapis książki kodów do strumienia
         symbol_size = int(math.ceil(math.log(max(alphabet) or 1, 2)))
-        write_binary(stream, len(alphabet), num_bits=8)
-        write_binary(stream, symbol_size, num_bits=8)
+        write_binary(stream, len(alphabet), num_bits=16)
+        write_binary(stream, symbol_size, num_bits=4)
         for symbol in ordered_alphabet:
             write_binary(stream, symbol, num_bits=symbol_size)
         return codebook
@@ -107,8 +107,8 @@ class ExpGolombCodec:
         write_binary(stream, r, num_bits=q)
 
     def _read_codebook(self, stream):
-        number_of_symbols = read_binary(stream, 8)
-        symbol_size = read_binary(stream, 8)
+        number_of_symbols = read_binary(stream, 16)
+        symbol_size = read_binary(stream, 4)
         return {i: read_binary(stream, symbol_size) for i in range(number_of_symbols)}
 
     def _decode_word(self, stream):
