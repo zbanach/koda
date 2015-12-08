@@ -1,10 +1,11 @@
 # coding=utf-8
 from codec import ExpGolombCodec
 from utils import entropy, read_image, differential_encoding, scale_to_positive, show_histogram
-from os.path import dirname
+from os.path import dirname, join, pardir, abspath
+from os import listdir
 
 def main():
-    IMG_PATH = './images/'
+    IMG_PATH = abspath(join(dirname(__file__), pardir, 'images'))
     source = [1, 2, 3, 0, 0, 4, 5, 0, 2, 6, 0, 7, 8, 0, 1, 0, 2, 2, 3, 9, 0, 0, 1, 2]
     #source = [255, 255, 255, 255, 255, 254]
     print "Ciąg wejściowy:   ", source
@@ -39,15 +40,15 @@ def main():
     print "Rozmiar danych zakodowanych [b]: ", s.compressed_size
 
     print "\nKODOWANIE OBRAZÓW"
-    pictures = ['airplane_bw.png', 'area_bw.png', 'lenna_bw.png', 'pepper_bw.png']
-    for idx, picture in enumerate(pictures, start=1):
-        print "\n{}. Obraz {}".format(idx,picture)
-        data = read_image(IMG_PATH+picture)
+    images = listdir(IMG_PATH)
+    for idx, image in enumerate(images, start=1):
+        print "\n{}. Obraz {}".format(idx, image)
+        data = read_image(join(IMG_PATH, image))
         diffed = differential_encoding(data)
-        show_histogram(diffed, picture)
+        show_histogram(diffed, image)
         scaled = scale_to_positive(diffed)
         for direct in (True, False):
-            codec = ExpGolombCodec(direct=direct)
+            codec = ExpGolombCodec(direct)
             codec.encode(scaled)
             stat = codec.statistics
             if direct:

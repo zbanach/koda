@@ -94,8 +94,11 @@ def read_image(filename):
     Zakłada się, że obrazek jest w skali szarości, dlatego pobierana jest wartość
     kanału R.
     """
-    img = Img.open(filename)
-    return list(img.getdata(0))
+    try:
+        img = Img.open(filename)
+        return list(img.getdata(0))
+    except IOError:
+        raise IOError("Nie można wczytać pliku '{}'".format(filename))
 
 def differential_encoding(data, first_value=128):
     """
@@ -124,7 +127,7 @@ def scale_to_nonpositive(data):
     """
     return [val/2 if val%2 == 0 else -1*(val + 1)/2 for val in data]
 
-def show_histogram(data, name):
+def show_histogram(data, name=''):
     """
     Wyświetlenie histogramu dla ciągu danych.
     """

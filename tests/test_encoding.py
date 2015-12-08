@@ -2,16 +2,17 @@
 # -*- coding: utf-8 -*-
 from ..app.codec import ExpGolombCodec
 from ..app.utils import entropy, read_image, differential_encoding, differential_decoding, scale_to_positive, scale_to_nonpositive, show_histogram
-from os.path import dirname
+from os.path import dirname, join, pardir, abspath
+from os import listdir
 
 def test_images():
-    IMG_PATH = './images/'
+    IMG_PATH = abspath(join(dirname(__file__), pardir, 'images'))
 
     print "\nTest kodowania obrazów"
-    pictures = ['airplane_bw.png', 'area_bw.png', 'lenna_bw.png', 'pepper_bw.png']
-    for idx, picture in enumerate(pictures, start=1):
-        print "\n{}. Obraz {}".format(idx,picture)
-        data = read_image(IMG_PATH+picture)
+    images = listdir(IMG_PATH)
+    for idx, image in enumerate(images, start=1):
+        print "\n{}. Obraz {}".format(idx, image)
+        data = read_image(join(IMG_PATH, image))
         diffed = differential_encoding(data)
         scaled = scale_to_positive(diffed)
         decoded = None
