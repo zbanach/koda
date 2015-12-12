@@ -135,3 +135,5 @@ def show_histogram(data, name=''):
     plt.xlabel(name)
     plt.show()
 
+def normalize_to_byte(samples):
+    return [round(s) if 0 <= s <= 255 else (0 if s < 0 else 255) for s in samples]

@@ -1,4 +1,4 @@
-from ..app.utils import entropy, histogram, write_binary, write_unary, read_binary, read_unary
+from ..app.utils import entropy, histogram, write_binary, write_unary, read_binary, read_unary, normalize_to_byte
 from utils import make_bitstream
 
 from bitstream import BitStream, ReadError
@@ -27,6 +27,13 @@ def test_entropy():
     assert entropy([i for i in range(32)]) == 5
     assert abs(entropy([1, 2, 3]) - -math.log(1/3.0, 2)) < 0.001
     assert abs(entropy([i for i in range(100)]) - -math.log(1/100.0, 2)) < 0.001
+
+
+def test_normalize_to_byte():
+    assert normalize_to_byte(range(256)) == range(256)
+    assert normalize_to_byte([-1, 0, 1]) == [0, 0, 1]
+    assert normalize_to_byte([240, 255, 256, 257]) == [240, 255, 255, 255]
+    assert normalize_to_byte([5, 7, -3, -1, 0, 8, 270, 265, 255]) == [5, 7, 0, 0, 0, 8, 255, 255, 255]
 
 
 class TestBitStreamBinaryWriter:
